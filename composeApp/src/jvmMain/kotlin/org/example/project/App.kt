@@ -25,13 +25,14 @@ import kotlin.system.exitProcess
 @Composable
 fun App() {
     MaterialTheme {
-        GridExample()
+        TTTGame()
     }
 }
 
 @Composable
-fun GridExample() {
-    val itemsList = remember { mutableStateListOf(*(1..9).map { "" }.toTypedArray()) } // Sample data
+fun TTTGame() {
+    val itemsList = remember { mutableStateListOf(*(1..9)
+        .map { "" }.toTypedArray()) }
     val clickCount = remember { mutableStateOf(0) }
     val showErrorDialog = remember { mutableStateOf(false) }
     val winner = remember { mutableStateOf<String?>(null) }
@@ -91,13 +92,14 @@ fun GridExample() {
         items(itemsList.size) { index ->
             val item = itemsList[index]
             val x = index % 3 // Column index (0, 1, 2)
-            val y = index / 3 // Row index (0, 1, ...)
+            val y = index / 3 // Row index (0, 1, 2)
             GridItem(item, x, y) {
                 if (itemsList[index].isNotEmpty()) {
                     showErrorDialog.value = true
                 } else {
                     clickCount.value++
-                    itemsList[index] = if (clickCount.value % 2 == 1) "X" else "O"
+                    itemsList[index] =
+                        if (clickCount.value % 2 == 1) "X" else "O"
                     
                         val winnerResult = checkWinner()
                         if (winnerResult != null) {
@@ -141,7 +143,7 @@ fun GridExample() {
                 },
                     dismissButton = {
                         Button(onClick = { exitProcess(0) }) {
-                            Text("Exit")
+                            Text("Quit")
                         }
                     }
                 )
