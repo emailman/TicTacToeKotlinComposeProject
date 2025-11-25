@@ -35,6 +35,7 @@ fun GridExample() {
     val clickCount = remember { mutableStateOf(0) }
     val showErrorDialog = remember { mutableStateOf(false) }
     val winner = remember { mutableStateOf<String?>(null) }
+    val isDraw = remember { mutableStateOf(false) }
 
     fun checkWinner(): String? {
         // Check rows
@@ -73,6 +74,11 @@ fun GridExample() {
         return null
     }
 
+    fun checkDraw(): Boolean {
+        // Draw occurs when all cells are filled and there's no winner
+        return itemsList.all { it.isNotEmpty() } && checkWinner() == null
+    }
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(3), // Fixed 3 columns
         modifier = Modifier
@@ -96,6 +102,8 @@ fun GridExample() {
                         val winnerResult = checkWinner()
                         if (winnerResult != null) {
                             winner.value = winnerResult
+                        } else if (checkDraw()) {
+                            isDraw.value = true
                         }
                     }
                 }
@@ -134,6 +142,30 @@ fun GridExample() {
                     dismissButton = {
                         Button(onClick = { exitProcess(0) }) {
                             Text("Exit")
+                        }
+                    }
+                )
+            }
+
+            if (isDraw.value) {
+                AlertDialog(
+                    onDismissRequest = { isDraw.value = false },
+                    title = { Text("Game Over!") },
+                    text = { Text("It's a draw! No one wins.") },
+                    confirmButton = {
+                        Button(onClick = { 
+                            isDraw.value = false
+                            // Reset the game
+                            itemsList.clear()
+                            itemsList.addAll(List(9) { "" })
+                            clickCount.value = 0
+                        }) {
+                            Text("Play Again")
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = { exitProcess(0) }) {
+                            Text("Quit")
                         }
                     }
                 )
