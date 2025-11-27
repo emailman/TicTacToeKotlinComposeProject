@@ -32,7 +32,7 @@ fun App() {
 @Composable
 fun TTTGame() {
     val itemsList = remember { mutableStateListOf(*(1..9)
-        .map { "" }.toTypedArray()) }
+        .map { "?" }.toTypedArray()) }
     val clickCount = remember { mutableStateOf(0) }
     val showErrorDialog = remember { mutableStateOf(false) }
     val winner = remember { mutableStateOf<String?>(null) }
