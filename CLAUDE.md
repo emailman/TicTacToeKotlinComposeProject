@@ -22,9 +22,15 @@ On Windows use `.\gradlew.bat` instead.
 
 - `App()` — owns navigation state (`gameMode: GameMode?`); renders `ModeSelectionScreen` or `TTTGame`
 - `ModeSelectionScreen` — startup screen with Two Players / vs. Computer buttons
-- `TTTGame(gameMode, onBackToMenu)` — full game: board state, click handler, dialogs, `LaunchedEffect` for AI turn
-- `GridItem` — single cell composable (unchanged)
-- `checkWinnerForBoard` / `minimaxScore` / `findBestMove` — pure top-level functions for win detection and minimax AI
+- `TTTGame(gameMode, onBackToMenu)` — full game: board state, click handler, dialogs, two `LaunchedEffect`s (AI turn; win-dialog delay)
+- `GridItem(isHighlighted)` — single cell composable; turns green when part of the winning line
+- `findWinningLine` — returns the three winning indices (or null); `checkWinnerForBoard` delegates to it
+- `minimaxScore` / `findBestMove` — pure top-level functions for minimax AI
+
+### Win flow
+1. Move placed → `findWinningLine` called → `winningLine` state set → cells highlight green immediately
+2. `LaunchedEffect(winningLine.value)` waits 1 second → sets `winner` → dialog appears
+3. Clicks are blocked while `winningLine != null` (covers the 1-second gap)
 
 ## Dependencies
 

@@ -8,7 +8,7 @@ A Tic-Tac-Toe desktop app built with Kotlin and Compose Multiplatform (JVM).
 - **Two Players** — local two-player hotseat mode
 - **vs. Computer** — play as X against an unbeatable minimax AI
 - Status bar showing whose turn it is, or "Computer is thinking..."
-- Win and draw detection with a game-over dialog
+- Win and draw detection — winning cells highlight green, dialog appears after a 1-second delay
 - Back to Menu button to return to mode selection without restarting the app
 
 ## Project Structure
