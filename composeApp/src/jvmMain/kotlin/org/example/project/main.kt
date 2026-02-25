@@ -9,7 +9,7 @@ import androidx.compose.ui.window.rememberWindowState
 // Run this function to launch the application
 fun main() = application {
     // Set the window size and title
-    val windowState = rememberWindowState(size = DpSize(600.dp, 650.dp))
+    val windowState = rememberWindowState(size = DpSize(600.dp, 750.dp))
     Window(
         onCloseRequest = ::exitApplication,
         title = "Kotlin Multiplatform Compose Tic Tac Toe",

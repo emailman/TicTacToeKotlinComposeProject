@@ -30,18 +30,20 @@ import kotlinx.coroutines.delay
 enum class GameMode { TWO_PLAYER, VS_COMPUTER }
 
 
-fun checkWinnerForBoard(board: List<String>): String? {
+fun findWinningLine(board: List<String>): List<Int>? {
     for (row in 0..2) {
         val s = row * 3
-        if (board[s].isNotEmpty() && board[s] == board[s+1] && board[s] == board[s+2]) return board[s]
+        if (board[s].isNotEmpty() && board[s] == board[s+1] && board[s] == board[s+2]) return listOf(s, s+1, s+2)
     }
     for (col in 0..2) {
-        if (board[col].isNotEmpty() && board[col] == board[col+3] && board[col] == board[col+6]) return board[col]
+        if (board[col].isNotEmpty() && board[col] == board[col+3] && board[col] == board[col+6]) return listOf(col, col+3, col+6)
     }
-    if (board[0].isNotEmpty() && board[0] == board[4] && board[0] == board[8]) return board[0]
-    if (board[2].isNotEmpty() && board[2] == board[4] && board[2] == board[6]) return board[2]
+    if (board[0].isNotEmpty() && board[0] == board[4] && board[0] == board[8]) return listOf(0, 4, 8)
+    if (board[2].isNotEmpty() && board[2] == board[4] && board[2] == board[6]) return listOf(2, 4, 6)
     return null
 }
+
+fun checkWinnerForBoard(board: List<String>): String? = findWinningLine(board)?.let { board[it[0]] }
 
 
 fun minimaxScore(board: List<String>, isMaximizing: Boolean): Int {
@@ -130,6 +132,7 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
     val winner = remember { mutableStateOf<String?>(null) }
     val isDraw = remember { mutableStateOf(false) }
     val isComputerTurn = remember { mutableStateOf(false) }
+    val winningLine = remember { mutableStateOf<List<Int>?>(null) }
 
     fun checkWinner() = checkWinnerForBoard(itemsList)
     fun checkDraw() = itemsList.all { it.isNotEmpty() } && checkWinner() == null
@@ -139,6 +142,7 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
         itemsList.addAll(List(9) { "" })
         clickCount.value = 0
         isComputerTurn.value = false
+        winningLine.value = null
     }
 
     LaunchedEffect(isComputerTurn.value) {
@@ -149,7 +153,7 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
                 clickCount.value++
                 itemsList[best] = "O"
                 val w = checkWinner()
-                if (w != null) winner.value = w else if (checkDraw()) isDraw.value = true
+                if (w != null) { winner.value = w; winningLine.value = findWinningLine(itemsList) } else if (checkDraw()) isDraw.value = true
             }
             isComputerTurn.value = false
         }
@@ -179,7 +183,7 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
                 val item = itemsList[index]
                 val x = index % 3
                 val y = index / 3
-                GridItem(item, x, y) {
+                GridItem(item, x, y, isHighlighted = winningLine.value?.contains(index) == true) {
                     if (gameMode == GameMode.VS_COMPUTER && isComputerTurn.value) return@GridItem
                     if (itemsList[index].isNotEmpty()) {
                         showErrorDialog.value = true
@@ -189,6 +193,7 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
                         val w = checkWinner()
                         if (w != null) {
                             winner.value = w
+                            winningLine.value = findWinningLine(itemsList)
                         } else if (checkDraw()) {
                             isDraw.value = true
                         } else if (gameMode == GameMode.VS_COMPUTER) {
@@ -275,14 +280,15 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
 
 
 @Composable
-fun GridItem(item: String, x: Int, y: Int, onClick: () -> Unit) {
+fun GridItem(item: String, x: Int, y: Int, isHighlighted: Boolean = false, onClick: () -> Unit) {
     Card(
+        backgroundColor = if (isHighlighted) Color(0xFF81C784) else Color.White,
         modifier = Modifier
             .aspectRatio(1f)
             .padding(4.dp)
             .border(
                 width = 2.dp,
-                color = Color.Gray,
+                color = if (isHighlighted) Color(0xFF388E3C) else Color.Gray,
                 shape = RoundedCornerShape(4.dp)
             )
             .clickable {
