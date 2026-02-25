@@ -145,6 +145,12 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
         winningLine.value = null
     }
 
+    LaunchedEffect(winningLine.value) {
+        val line = winningLine.value ?: return@LaunchedEffect
+        delay(1000L)
+        winner.value = itemsList[line[0]]
+    }
+
     LaunchedEffect(isComputerTurn.value) {
         if (isComputerTurn.value && winner.value == null && !isDraw.value) {
             delay(500L)
@@ -152,8 +158,8 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
             if (best != -1) {
                 clickCount.value++
                 itemsList[best] = "O"
-                val w = checkWinner()
-                if (w != null) { winner.value = w; winningLine.value = findWinningLine(itemsList) } else if (checkDraw()) isDraw.value = true
+                val line = findWinningLine(itemsList)
+                if (line != null) winningLine.value = line else if (checkDraw()) isDraw.value = true
             }
             isComputerTurn.value = false
         }
@@ -185,15 +191,15 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
                 val y = index / 3
                 GridItem(item, x, y, isHighlighted = winningLine.value?.contains(index) == true) {
                     if (gameMode == GameMode.VS_COMPUTER && isComputerTurn.value) return@GridItem
+                    if (winningLine.value != null) return@GridItem
                     if (itemsList[index].isNotEmpty()) {
                         showErrorDialog.value = true
                     } else {
                         clickCount.value++
                         itemsList[index] = if (clickCount.value % 2 == 1) "X" else "O"
-                        val w = checkWinner()
-                        if (w != null) {
-                            winner.value = w
-                            winningLine.value = findWinningLine(itemsList)
+                        val line = findWinningLine(itemsList)
+                        if (line != null) {
+                            winningLine.value = line
                         } else if (checkDraw()) {
                             isDraw.value = true
                         } else if (gameMode == GameMode.VS_COMPUTER) {
