@@ -1,18 +1,29 @@
-This is a Kotlin Multiplatform project targeting Desktop (JVM).
+# Tic-Tac-Toe
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+A Tic-Tac-Toe desktop app built with Kotlin and Compose Multiplatform (JVM).
 
-### Build and Run Desktop (JVM) Application
+## Features
 
-To build and run the development version of the desktop app, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
+- **Mode selection screen** — choose how to play at startup
+- **Two Players** — local two-player hotseat mode
+- **vs. Computer** — play as X against an unbeatable minimax AI
+- Status bar showing whose turn it is, or "Computer is thinking..."
+- Win and draw detection with a game-over dialog
+- Back to Menu button to return to mode selection without restarting the app
+
+## Project Structure
+
+All game logic lives in a single file:
+`composeApp/src/jvmMain/kotlin/org/example/project/App.kt`
+
+Key components:
+- `ModeSelectionScreen` — startup screen
+- `TTTGame` — game board, state, and dialogs
+- `checkWinnerForBoard` / `minimaxScore` / `findBestMove` — AI logic
+
+## Build and Run
+
+Run from the terminal:
 - on macOS/Linux
   ```shell
   ./gradlew :composeApp:run
@@ -22,6 +33,16 @@ in your IDE’s toolbar or run it directly from the terminal:
   .\gradlew.bat :composeApp:run
   ```
 
+Or build a native distributable:
+- on macOS/Linux
+  ```shell
+  ./gradlew :composeApp:runDistributable
+  ```
+- on Windows
+  ```shell
+  .\gradlew.bat :composeApp:runDistributable
+  ```
+
 ---
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+Built with [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html) and [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/).
