@@ -96,11 +96,11 @@ fun findBestMove(board: List<String>): Int {
 fun App() {
     MaterialTheme {
         var gameMode by remember { mutableStateOf<GameMode?>(null) }
-        if (gameMode == null) {
+        val mode = gameMode
+        if (mode == null) {
             ModeSelectionScreen(onModeSelected = { gameMode = it })
         } else {
-            TTTGame(gameMode = gameMode ?: return@MaterialTheme,
-                onBackToMenu = { gameMode = null })
+            TTTGame(gameMode = mode, onBackToMenu = { gameMode = null })
         }
     }
 }
@@ -126,7 +126,7 @@ fun ModeSelectionScreen(onModeSelected: (GameMode) -> Unit) {
         Button(
             onClick = { onModeSelected(GameMode.VS_COMPUTER) },
             modifier = Modifier.fillMaxWidth()
-        ) { Text("vs. Computer") }
+        ) { Text("Person versus Computer") }
     }
 }
 
@@ -156,6 +156,7 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
     }
 
     LaunchedEffect(winningLine.value) {
+        // Wait 1 second after showing the winning line to show the dialog
         val line = winningLine.value ?: return@LaunchedEffect
         delay(1000L)
         winner.value = itemsList[line[0]]
@@ -163,6 +164,7 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
 
     LaunchedEffect(isComputerTurn.value) {
         if (isComputerTurn.value && winner.value == null && !isDraw.value) {
+            // Pretend to spend .5 second thinking
             delay(500L)
             val best = findBestMove(itemsList.toList())
             if (best != -1) {
@@ -260,7 +262,7 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
             },
             dismissButton = {
                 Column {
-                    Button(onClick = { winner.value = null; resetGame();
+                    Button(onClick = { winner.value = null; resetGame()
                         onBackToMenu() }) {
                         Text("Back to Menu")
                     }
@@ -288,7 +290,7 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
             },
             dismissButton = {
                 Column {
-                    Button(onClick = { isDraw.value = false; resetGame();
+                    Button(onClick = { isDraw.value = false; resetGame()
                         onBackToMenu() }) {
                         Text("Back to Menu")
                     }
