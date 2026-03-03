@@ -33,17 +33,22 @@ enum class GameMode { TWO_PLAYER, VS_COMPUTER }
 fun findWinningLine(board: List<String>): List<Int>? {
     for (row in 0..2) {
         val s = row * 3
-        if (board[s].isNotEmpty() && board[s] == board[s+1] && board[s] == board[s+2]) return listOf(s, s+1, s+2)
+        if (board[s].isNotEmpty() && board[s] == board[s+1] &&
+            board[s] == board[s+2]) return listOf(s, s+1, s+2)
     }
     for (col in 0..2) {
-        if (board[col].isNotEmpty() && board[col] == board[col+3] && board[col] == board[col+6]) return listOf(col, col+3, col+6)
+        if (board[col].isNotEmpty() && board[col] == board[col+3] &&
+            board[col] == board[col+6]) return listOf(col, col+3, col+6)
     }
-    if (board[0].isNotEmpty() && board[0] == board[4] && board[0] == board[8]) return listOf(0, 4, 8)
-    if (board[2].isNotEmpty() && board[2] == board[4] && board[2] == board[6]) return listOf(2, 4, 6)
+    if (board[0].isNotEmpty() && board[0] == board[4] &&
+        board[0] == board[8]) return listOf(0, 4, 8)
+    if (board[2].isNotEmpty() && board[2] == board[4] &&
+        board[2] == board[6]) return listOf(2, 4, 6)
     return null
 }
 
-fun checkWinnerForBoard(board: List<String>): String? = findWinningLine(board)?.let { board[it[0]] }
+fun checkWinnerForBoard(board: List<String>): String? =
+    findWinningLine(board)?.let { board[it[0]] }
 
 
 fun minimaxScore(board: List<String>, isMaximizing: Boolean): Int {
@@ -94,7 +99,8 @@ fun App() {
         if (gameMode == null) {
             ModeSelectionScreen(onModeSelected = { gameMode = it })
         } else {
-            TTTGame(gameMode = gameMode!!, onBackToMenu = { gameMode = null })
+            TTTGame(gameMode = gameMode ?: return@MaterialTheme,
+                onBackToMenu = { gameMode = null })
         }
     }
 }
@@ -109,7 +115,8 @@ fun ModeSelectionScreen(onModeSelected: (GameMode) -> Unit) {
     ) {
         Text("Tic-Tac-Toe", style = MaterialTheme.typography.displayLarge)
         Spacer(modifier = Modifier.height(48.dp))
-        Text("Select Game Mode", style = MaterialTheme.typography.headlineMedium)
+        Text("Select Game Mode", style =
+            MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(32.dp))
         Button(
             onClick = { onModeSelected(GameMode.TWO_PLAYER) },
@@ -126,7 +133,9 @@ fun ModeSelectionScreen(onModeSelected: (GameMode) -> Unit) {
 
 @Composable
 fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
-    val itemsList = remember { mutableStateListOf(*(1..9).map { "" }.toTypedArray()) }
+    val itemsList = remember {
+        mutableStateListOf(*(1..9).map { "" }.toTypedArray())
+    }
     val clickCount = remember { mutableStateOf(0) }
     val showErrorDialog = remember { mutableStateOf(false) }
     val winner = remember { mutableStateOf<String?>(null) }
@@ -135,7 +144,8 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
     val winningLine = remember { mutableStateOf<List<Int>?>(null) }
 
     fun checkWinner() = checkWinnerForBoard(itemsList)
-    fun checkDraw() = itemsList.all { it.isNotEmpty() } && checkWinner() == null
+    fun checkDraw() = itemsList.all { it.isNotEmpty() } &&
+            checkWinner() == null
 
     val resetGame = {
         itemsList.clear()
@@ -159,7 +169,8 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
                 clickCount.value++
                 itemsList[best] = "O"
                 val line = findWinningLine(itemsList)
-                if (line != null) winningLine.value = line else if (checkDraw()) isDraw.value = true
+                if (line != null) winningLine.value = line
+                else if (checkDraw()) isDraw.value = true
             }
             isComputerTurn.value = false
         }
@@ -167,7 +178,8 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
 
     Column(modifier = Modifier.fillMaxSize()) {
         val statusText = when {
-            gameMode == GameMode.VS_COMPUTER && isComputerTurn.value -> "Computer is thinking..."
+            gameMode == GameMode.VS_COMPUTER &&
+                    isComputerTurn.value -> "Computer is thinking..."
             gameMode == GameMode.VS_COMPUTER -> "Your turn (X)"
             clickCount.value % 2 == 0 -> "Player X's turn"
             else -> "Player O's turn"
@@ -175,7 +187,8 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
         Text(
             text = statusText,
             style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp),
+            modifier = Modifier.fillMaxWidth()
+                .padding(top = 16.dp, bottom = 8.dp),
             textAlign = TextAlign.Center
         )
         LazyVerticalGrid(
@@ -189,14 +202,17 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
                 val item = itemsList[index]
                 val x = index % 3
                 val y = index / 3
-                GridItem(item, x, y, isHighlighted = winningLine.value?.contains(index) == true) {
-                    if (gameMode == GameMode.VS_COMPUTER && isComputerTurn.value) return@GridItem
+                GridItem(item, x, y,
+                    isHighlighted = winningLine.value?.contains(index) == true) {
+                    if (gameMode == GameMode.VS_COMPUTER &&
+                        isComputerTurn.value) return@GridItem
                     if (winningLine.value != null) return@GridItem
                     if (itemsList[index].isNotEmpty()) {
                         showErrorDialog.value = true
                     } else {
                         clickCount.value++
-                        itemsList[index] = if (clickCount.value % 2 == 1) "X" else "O"
+                        itemsList[index] =
+                            if (clickCount.value % 2 == 1) "X" else "O"
                         val line = findWinningLine(itemsList)
                         if (line != null) {
                             winningLine.value = line
@@ -244,7 +260,8 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
             },
             dismissButton = {
                 Column {
-                    Button(onClick = { winner.value = null; resetGame(); onBackToMenu() }) {
+                    Button(onClick = { winner.value = null; resetGame();
+                        onBackToMenu() }) {
                         Text("Back to Menu")
                     }
                     Spacer(Modifier.height(8.dp))
@@ -271,7 +288,8 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
             },
             dismissButton = {
                 Column {
-                    Button(onClick = { isDraw.value = false; resetGame(); onBackToMenu() }) {
+                    Button(onClick = { isDraw.value = false; resetGame();
+                        onBackToMenu() }) {
                         Text("Back to Menu")
                     }
                     Spacer(Modifier.height(8.dp))
@@ -286,15 +304,20 @@ fun TTTGame(gameMode: GameMode, onBackToMenu: () -> Unit) {
 
 
 @Composable
-fun GridItem(item: String, x: Int, y: Int, isHighlighted: Boolean = false, onClick: () -> Unit) {
+fun GridItem(item: String, x: Int, y: Int, isHighlighted: Boolean = false,
+             onClick: () -> Unit) {
     Card(
-        backgroundColor = if (isHighlighted) Color(0xFF81C784) else Color.White,
+        backgroundColor =
+            if (isHighlighted) Color(0xFF81C784)
+            else Color.White,
         modifier = Modifier
             .aspectRatio(1f)
             .padding(4.dp)
             .border(
                 width = 2.dp,
-                color = if (isHighlighted) Color(0xFF388E3C) else Color.Gray,
+                color =
+                    if (isHighlighted) Color(0xFF388E3C)
+                    else Color.Gray,
                 shape = RoundedCornerShape(4.dp)
             )
             .clickable {
